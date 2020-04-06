@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { get, controller, post } from './decorator'
+import { controller, get, post } from '../decorator'
 import { getResponseData } from '../utils/util'
 
 interface RequestWithBody extends Request{
@@ -11,10 +11,13 @@ interface RequestWithBody extends Request{
 
 @controller
 class LoginController {
+  static isLogin(req: RequestWithBody): boolean {
+    return !!(req.session ? req.session.login : false)
+  }
   @post('/login')
   login(req: RequestWithBody, res: Response){
     const { password } = req.body
-    const isLogin = req.session ? req.session.login : undefined
+    const isLogin = LoginController.isLogin(req)
     if (isLogin) {
         res.json(getResponseData(false, '已经登录过'))
     } else {
@@ -36,7 +39,7 @@ class LoginController {
   }
   @get('/')
   home(req: Request, res: Response) {
-    const isLogin = req.session ? req.session.login : false
+    const isLogin = LoginController.isLogin(req)
     if (isLogin) {
         res.send(`
             <html>

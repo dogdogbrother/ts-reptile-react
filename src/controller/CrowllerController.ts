@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import 'reflect-metadata'
 import { Request, Response, NextFunction } from 'express'
-import { controller, get, use } from './decorator'
+import { controller, use, get } from '../decorator'
 import { getResponseData } from '../utils/util'
 import Crowller from '../utils/crowller'
 import DellAnalyzer from '../utils/analyzer'
@@ -13,8 +13,8 @@ interface RequestWithBody extends Request{
   }  
 }
 
-const checkLogin = (req: Request, res: Response, next: NextFunction) => {
-  const isLogin = req.session ? req.session.login : false
+const checkLogin = (req: Request, res: Response, next: NextFunction): void => {
+  const isLogin = !!(req.session ? req.session.login : false)
   if (isLogin) {
       next()
   } else {
@@ -26,7 +26,7 @@ const checkLogin = (req: Request, res: Response, next: NextFunction) => {
 class CrowllerController {
   @get('/getData')
   @use(checkLogin)
-  getData(req: RequestWithBody, res: Response) {
+  getData(req: RequestWithBody, res: Response): void {
     const secret = 'x3b174jsx'
     const url = `http://www.dell-lee.com/typescript/demo.html?secret=${secret}`
     const coursePath = '../../data/course.json'
@@ -37,7 +37,7 @@ class CrowllerController {
   
   @get('/showData')
   @use(checkLogin)
-  showData(req: RequestWithBody, res: Response) {
+  showData(req: RequestWithBody, res: Response): void {
     try {
       const position = path.resolve(__dirname, '../../data/course.json')
       const result = fs.readFileSync(position, 'UTF-8')
